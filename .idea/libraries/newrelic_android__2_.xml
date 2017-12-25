@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="newrelic.android (2)">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../newRelic_src/src/main/libs/newrelic.android.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Premain-Class: com.newrelic.agent.compile.RewriterAgent
+Agent-Class: com.newrelic.agent.compile.RewriterAgent
+Can-Redefine-Classes: true
+Can-Retransform-Classes: true
+

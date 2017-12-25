@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../newRelic_src/.idea/modules/newRelic.iml" filepath="$PROJECT_DIR$/../newRelic_src/.idea/modules/newRelic.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../newRelic_src/.idea/modules/newRelic.android/newRelic.android.iml" filepath="$PROJECT_DIR$/../newRelic_src/.idea/modules/newRelic.android/newRelic.android.iml" group="newRelic.android" />
+      <module fileurl="file://$PROJECT_DIR$/../newRelic_src/.idea/modules/newRelic_main.iml" filepath="$PROJECT_DIR$/../newRelic_src/.idea/modules/newRelic_main.iml" group="newRelic" />
+      <module fileurl="file://$PROJECT_DIR$/../newRelic_src/.idea/modules/newRelic_test.iml" filepath="$PROJECT_DIR$/../newRelic_src/.idea/modules/newRelic_test.iml" group="newRelic" />
+    </modules>
+  </component>
+</project>
