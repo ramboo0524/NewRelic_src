@@ -175,9 +175,7 @@ public final class RewriterAgent {
         modifiersField.setAccessible(true);
         modifiersField.setInt(field, field.getModifiers() & -17);
         if(field.get((Object)null) instanceof InvocationDispatcher) {
-//            InvocationDispatcher dispatcher = (InvocationDispatcher) field.get((Object)null);
-//            new InvocationDispatcher(log);
-//            log.info("Detected cached instrumentation. getRemappings().size(): " +  dispatcher.getConfig().getRemappings().size() );
+            log.info("Detected cached instrumentation.");
         } else {
             field.set((Object)null, new InvocationDispatcher(log));
         }

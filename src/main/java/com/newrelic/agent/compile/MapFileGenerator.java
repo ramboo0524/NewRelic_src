@@ -13,6 +13,7 @@ import com.newrelic.agent.util.MethodAnnotation;
 import org.objectweb.asm.Type;
 import org.reflections.util.ClasspathHelper;
 import java.io.FileOutputStream;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -66,74 +67,78 @@ public class MapFileGenerator {
 
     }
 
+    ////ljh这里由intelij反编译，与jd-gui有出入
     static Map<String, String> getRemapperProperties() {
-        HashMap classMap = new HashMap();
-        Set urls = ClasspathHelper.forPackage("com.newrelic.agent", new ClassLoader[0]);
-        Collection wrapReturnAnnotations = Annotations.getMethodAnnotations(WrapReturn.class, "com/newrelic/agent", urls);
-        Iterator callSiteAnnotations = wrapReturnAnnotations.iterator();
+        Map<String, String> classMap = new HashMap();
+        Set<URL> urls = ClasspathHelper.forPackage("com.newrelic.agent", new ClassLoader[0]);
+        Collection<MethodAnnotation> wrapReturnAnnotations = Annotations.getMethodAnnotations(WrapReturn.class, "com/newrelic/agent", urls);
+        Iterator var3 = wrapReturnAnnotations.iterator();
 
-        String typeStart;
-        String typeEnd;
-        String originalClassName;
-        while(callSiteAnnotations.hasNext()) {
-            MethodAnnotation constructorAnnotations = (MethodAnnotation)callSiteAnnotations.next();
-            String annotation = (String)constructorAnnotations.getAttributes().get("className");
-            String annotation1 = (String)constructorAnnotations.getAttributes().get("methodName");
-            typeStart = (String)constructorAnnotations.getAttributes().get("methodDesc");
-            typeEnd = constructorAnnotations.getClassName();
-            originalClassName = constructorAnnotations.getMethodName();
-            classMap.put(ClassRemapperConfig.WRAP_METHOD_IDENTIFIER + annotation.replace('.', '/') + '.' + annotation1 + typeStart, typeEnd + '.' + originalClassName + constructorAnnotations.getMethodDesc());
+        String scope;
+        String originalMethodName;
+        String originalMethodDesc;
+        while(var3.hasNext()) {
+            MethodAnnotation annotation = (MethodAnnotation)var3.next();
+            String originalClassName = (String)annotation.getAttributes().get("className");
+            originalMethodName = (String)annotation.getAttributes().get("methodName");
+            scope = (String)annotation.getAttributes().get("methodDesc");
+            originalMethodName = annotation.getClassName();
+            originalMethodDesc = annotation.getMethodName();
+            classMap.put("WRAP_METHOD:" + originalClassName.replace('.', '/') + '.' + originalMethodName + scope, originalMethodName + '.' + originalMethodDesc + annotation.getMethodDesc());
         }
 
-        Collection var13 = Annotations.getMethodAnnotations(ReplaceCallSite.class, "com/newrelic/agent", urls);
-        Iterator var14 = var13.iterator();
+        Collection<MethodAnnotation> callSiteAnnotations = Annotations.getMethodAnnotations(ReplaceCallSite.class, "com/newrelic/agent", urls);
+        Iterator var14 = callSiteAnnotations.iterator();
 
-        String var22;
-        String var23;
+        String newClassName;
+        String newMethodName;
         while(var14.hasNext()) {
-            MethodAnnotation var16 = (MethodAnnotation)var14.next();
-            Boolean var18 = (Boolean)var16.getAttributes().get("isStatic");
-            typeStart = (String)var16.getAttributes().get("scope");
-            if(var18 == null) {
-                var18 = new Boolean(false);
+            MethodAnnotation annotation = (MethodAnnotation)var14.next();
+            Boolean isStatic = (Boolean)annotation.getAttributes().get("isStatic");
+            scope = (String)annotation.getAttributes().get("scope");
+            if(isStatic == null) {
+                isStatic = new Boolean(false);
             }
 
-            typeEnd = var16.getMethodName();
-            originalClassName = var16.getMethodDesc();
-            if(!var18.booleanValue()) {
-                Type[] originalMethodDesc = Type.getArgumentTypes(originalClassName);
-                Type[] newClassName = new Type[originalMethodDesc.length - 1];
+            originalMethodName = annotation.getMethodName();
+            originalMethodDesc = annotation.getMethodDesc();
+            if(!isStatic.booleanValue()) {
+                Type[] argTypes = Type.getArgumentTypes(originalMethodDesc);
+                Type[] newArgTypes = new Type[argTypes.length - 1];
 
-                for(int newMethodName = 0; newMethodName < newClassName.length; ++newMethodName) {
-                    newClassName[newMethodName] = originalMethodDesc[newMethodName + 1];
+                for(int i = 0; i < newArgTypes.length; ++i) {
+                    newArgTypes[i] = argTypes[i + 1];
                 }
 
-                Type var24 = Type.getReturnType(originalClassName);
-                originalClassName = Type.getMethodDescriptor(var24, newClassName);
+                Type returnType = Type.getReturnType(originalMethodDesc);
+                originalMethodDesc = Type.getMethodDescriptor(returnType, newArgTypes);
             }
 
-            var22 = var16.getClassName();
-            var23 = var16.getMethodName();
-            if(typeStart == null) {
-                classMap.put(ClassRemapperConfig.REPLACE_CALL_SITE_IDENTIFIER + typeEnd + originalClassName, var22 + '.' + var23 + var16.getMethodDesc());
+            newClassName = annotation.getClassName();
+            newMethodName = annotation.getMethodName();
+            if(scope == null) {
+                classMap.put("REPLACE_CALL_SITE:" + originalMethodName + originalMethodDesc, newClassName + '.' + newMethodName + annotation.getMethodDesc());
             } else {
-                classMap.put(ClassRemapperConfig.REPLACE_CALL_SITE_IDENTIFIER + typeStart.replace('.', '/') + "." + typeEnd + originalClassName, var22 + '.' + var23 + var16.getMethodDesc());
+                classMap.put("REPLACE_CALL_SITE:" + scope.replace('.', '/') + "." + originalMethodName + originalMethodDesc, newClassName + '.' + newMethodName + annotation.getMethodDesc());
             }
         }
 
-        Collection var15 = Annotations.getMethodAnnotations(TraceConstructor.class, "com/newrelic/agent", urls);
-        Iterator var17 = var15.iterator();
+        Collection<MethodAnnotation> constructorAnnotations = Annotations.getMethodAnnotations(TraceConstructor.class, "com/newrelic/agent", urls);
+        Iterator var17 = constructorAnnotations.iterator();
 
         while(var17.hasNext()) {
-            MethodAnnotation var19 = (MethodAnnotation)var17.next();
-            int var20 = var19.getMethodDesc().indexOf(")L");
-            int var21 = var19.getMethodDesc().lastIndexOf(";");
-            System.out.print("Start: " + var20 + " end: " + var21 + " for " + var19.getMethodDesc());
-            originalClassName = var19.getMethodDesc().substring(var20 + 2, var21);
-            var22 = var19.getMethodDesc().substring(0, var20 + 1) + "V";
-            var23 = var19.getClassName();
-            String var25 = var19.getMethodName();
-            classMap.put(ClassRemapperConfig.REPLACE_CALL_SITE_IDENTIFIER + originalClassName.replace('.', '/') + "." + "<init>" + var22, var23 + '.' + var25 + var19.getMethodDesc());
+            MethodAnnotation annotation = (MethodAnnotation)var17.next();
+            int typeStart = annotation.getMethodDesc().indexOf(")L");
+            int typeEnd = annotation.getMethodDesc().lastIndexOf(";");
+            System.out.print("Start: " + typeStart + " end: " + typeEnd + " for " + annotation.getMethodDesc());
+            String originalClassName = annotation.getMethodDesc().substring(typeStart + 2, typeEnd);
+
+            originalMethodDesc = annotation.getMethodDesc().substring(0, typeStart + 1) + "V";
+            newClassName = annotation.getClassName();
+            newMethodName = annotation.getMethodName();
+
+            classMap.put("REPLACE_CALL_SITE:" + originalClassName.replace('.', '/') + "." + "<init>" + originalMethodDesc, newClassName + '.' + newMethodName + annotation
+                    .getMethodDesc());
         }
 
         return classMap;

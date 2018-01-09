@@ -26,11 +26,9 @@ public class ClassRemapperConfig {
     public static final String REPLACE_CALL_SITE_IDENTIFIER = "REPLACE_CALL_SITE:";
     private final Map<ClassMethod, ClassMethod> methodWrappers;
     private final Map<String, Collection<ClassMethod>> callSiteReplacements;
-    private Map remappings ;
 
     public ClassRemapperConfig(Log log) throws ClassNotFoundException {
-        remappings = getRemappings(log);
-        log.debug( "ClassRemapperConfig remappings size: " + remappings.size() );
+        Map<String, String> remappings = getRemappings(log);
         this.methodWrappers = getMethodWrappers(remappings, log);
         this.callSiteReplacements = getCallSiteReplacements(remappings, log);
     }
@@ -122,10 +120,7 @@ public class ClassRemapperConfig {
         }
 
         return callSiteReplacements1;
-    }
 
-    public Map getRemappings() {
-        return remappings;
     }
 
     private static Map getRemappings(Log log) {

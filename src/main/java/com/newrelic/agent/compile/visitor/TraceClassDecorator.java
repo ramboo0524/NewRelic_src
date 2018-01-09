@@ -13,8 +13,6 @@ import java.util.Arrays;
 
 public class TraceClassDecorator {
     public static final String TRACE_FIELD_INTERFACE_CLASS = "com/newrelic/agent/android/api/v2/TraceFieldInterface";
-    public static final String LCOM_NEWRELIC_AGENT_ANDROID_TRACING_TRACE = "Lcom/newrelic/agent/android/tracing/Trace;";
-    public static final String NR_TRACE = "_nr_trace";
     private ClassVisitor adapter;
 
     public TraceClassDecorator(ClassVisitor adapter) {
@@ -22,22 +20,22 @@ public class TraceClassDecorator {
     }
 
     public void addTraceField() {
-        this.adapter.visitField(Opcodes.ACC_PUBLIC, NR_TRACE, LCOM_NEWRELIC_AGENT_ANDROID_TRACING_TRACE, null, null);
+        this.adapter.visitField(1, "_nr_trace", "Lcom/newrelic/agent/android/tracing/Trace;", (String)null, (Object)null);
     }
 
     public static String[] addInterface(String[] interfaces) {
-        ArrayList<String> newInterfaces = new ArrayList<String>(Arrays.asList(interfaces));
-        newInterfaces.remove(TRACE_FIELD_INTERFACE_CLASS);
-        newInterfaces.add(TRACE_FIELD_INTERFACE_CLASS);
-        return newInterfaces.toArray(new String[newInterfaces.size()]);
+        ArrayList<String> newInterfaces = new ArrayList(Arrays.asList(interfaces));
+        newInterfaces.remove("com/newrelic/agent/android/api/v2/TraceFieldInterface");
+        newInterfaces.add("com/newrelic/agent/android/api/v2/TraceFieldInterface");
+        return (String[])newInterfaces.toArray(new String[newInterfaces.size()]);
     }
 
     //ljh 这里修改了。
     public void addTraceInterface(final Type ownerType) {
         Method method = new Method("_nr_setTrace", "(Lcom/newrelic/agent/android/tracing/Trace;)V");
-        MethodVisitor mv = this.adapter.visitMethod(Opcodes.ACC_PUBLIC, method.getName(), method.getDescriptor(), null, null);
+        MethodVisitor mv = this.adapter.visitMethod(1, method.getName(), method.getDescriptor(), (String)null, (String[])null);
 //        MethodVisitor mv = new GeneratorAdapter(327680, mv, 1, method.getName(), method.getDescriptor()) {
-        mv = new GeneratorAdapter(Opcodes.ASM5, mv, Opcodes.ACC_PUBLIC, method.getName(), method.getDescriptor()) {
+        mv = new GeneratorAdapter(327680, mv, 1, method.getName(), method.getDescriptor()) {
             public void visitCode() {
                 Label tryStart = new Label();
                 Label tryEnd = new Label();
@@ -46,7 +44,7 @@ public class TraceClassDecorator {
                 this.visitLabel(tryStart);
                 this.loadThis();
                 this.loadArgs();
-                this.putField(ownerType, NR_TRACE, Type.getType(LCOM_NEWRELIC_AGENT_ANDROID_TRACING_TRACE));
+                this.putField(ownerType, "_nr_trace", Type.getType("Lcom/newrelic/agent/android/tracing/Trace;"));
                 this.goTo(tryEnd);
                 this.visitLabel(tryHandler);
                 this.pop();

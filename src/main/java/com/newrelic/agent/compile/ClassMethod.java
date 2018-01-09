@@ -20,7 +20,7 @@ public final class ClassMethod {
 
     static ClassMethod getClassMethod(String signature) {
         try {
-            int descIndex = signature.lastIndexOf('(');
+            int descIndex = signature.lastIndexOf(40);
             String methodDesc;
             if(descIndex == -1) {
                 descIndex = signature.length();
@@ -30,7 +30,7 @@ public final class ClassMethod {
             }
 
             String beforeMethodDesc = signature.substring(0, descIndex);
-            int methodIndex = beforeMethodDesc.lastIndexOf('.');
+            int methodIndex = beforeMethodDesc.lastIndexOf(46);
             return new ClassMethod(signature.substring(0, methodIndex), signature.substring(methodIndex + 1, descIndex), methodDesc);
         } catch (Exception var5) {
             throw new RuntimeException("Error parsing " + signature, var5);

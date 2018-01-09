@@ -39,8 +39,10 @@ public class TestMain {
 //        }catch ( Exception e ){
 //
 //        }
-        System.out.println( 1 | 2 );
-        System.out.println(  ClassReader.EXPAND_FRAMES | ClassReader.SKIP_FRAMES  );
+//        System.out.println( 1 | 2 );
+//        System.out.println(  ClassReader.EXPAND_FRAMES | ClassReader.SKIP_FRAMES  );
+        File file = new File("./build.gradle");
+        System.out.println("file : " + file.exists() );
     }
 
 
